@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.impute import KNNImputer
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
@@ -39,8 +39,14 @@ def prepare_dataset() -> (pd.DataFrame, pd.Series, pd.DataFrame, pd.Series):
     return train_x, train_y, test_x, test_y
 
 
-def show_results(accuracy, pred_y, test_x, test_y) -> None:
-    print(f'Accuracy: {accuracy:.2f}')
+def show_results(pred_y, test_x, test_y) -> None:
+    print('Confusion matrix values:')
+    tn, fp, fn, tp = confusion_matrix(test_y, pred_y).ravel()
+    print(f'True Negatives: {tn}, False Positives: {fp}, False Negatives: {fn}, True Positives: {tp}')
+
+    print('Classification report:')
+    print(classification_report(test_y, pred_y))
+
     print(f'Example predictions:')
     for i in range(5):
         print(f'For the following features:'
@@ -49,7 +55,7 @@ def show_results(accuracy, pred_y, test_x, test_y) -> None:
               f' Actual: {"Survived" if test_y.iloc[i] == 1.0 else "Did not survive"}')
 
 
-def classify_kNN(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame, test_y: pd.Series):
+def classify_knn(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame, test_y: pd.Series):
     """
     Classify the Titanic dataset using k-Nearest Neighbors
     :param train_x: Training features
@@ -65,13 +71,12 @@ def classify_kNN(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame
 
     # Test the k-Nearest Neighbors model
     pred_y = k_nn.predict(test_x)
-    accuracy = accuracy_score(test_y, pred_y)
 
     print('\n==================== k-Nearest Neighbors ====================')
-    show_results(accuracy, pred_y, test_x, test_y)
+    show_results(pred_y, test_x, test_y)
 
 
-def classify_SVM(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame, test_y: pd.Series):
+def classify_svm(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame, test_y: pd.Series):
     """
     Classify the Titanic dataset using Support Vector Machines
     :param train_x: Training features
@@ -87,10 +92,9 @@ def classify_SVM(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame
 
     # Test the Support Vector Machines model
     pred_y = svm.predict(test_x)
-    accuracy = accuracy_score(test_y, pred_y)
 
     print('\n==================== Support Vector Machines ====================')
-    show_results(accuracy, pred_y, test_x, test_y)
+    show_results(pred_y, test_x, test_y)
 
 
 def classify_linear_regression(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame, test_y: pd.Series):
@@ -110,10 +114,9 @@ def classify_linear_regression(train_x: pd.DataFrame, train_y: pd.Series, test_x
     # Test the Linear Regression model
     pred_y = lin_reg.predict(test_x)
     pred_y = np.round(pred_y)  # Round to the nearest integer
-    accuracy = accuracy_score(test_y, pred_y)
 
     print('\n==================== Linear Regression ====================')
-    show_results(accuracy, pred_y, test_x, test_y)
+    show_results(pred_y, test_x, test_y)
 
 
 def classify_logistic_regression(train_x: pd.DataFrame, train_y: pd.Series, test_x: pd.DataFrame, test_y: pd.Series):
@@ -132,17 +135,16 @@ def classify_logistic_regression(train_x: pd.DataFrame, train_y: pd.Series, test
 
     # Test the Logistic Regression model
     pred_y = log_reg.predict(test_x)
-    accuracy = accuracy_score(test_y, pred_y)
 
     print('\n==================== Logistic Regression ====================')
-    show_results(accuracy, pred_y, test_x, test_y)
+    show_results(pred_y, test_x, test_y)
 
 
 def main():
     train_x, train_y, test_x, test_y = prepare_dataset()
 
-    classify_kNN(train_x, train_y, test_x, test_y)
-    classify_SVM(train_x, train_y, test_x, test_y)
+    classify_knn(train_x, train_y, test_x, test_y)
+    classify_svm(train_x, train_y, test_x, test_y)
     classify_linear_regression(train_x, train_y, test_x, test_y)
     classify_logistic_regression(train_x, train_y, test_x, test_y)
 
